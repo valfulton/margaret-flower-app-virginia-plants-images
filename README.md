@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Margaret Flower App
+
+A Next.js application connected to Supabase that displays a searchable list of flowers native to the NOVA region. Clicking on a flower opens a popup with detailed information and icons for bloom time, categories, deer resistance, sunlight, moisture, soil type, and more.
+
+## Features
+
+- **Searchable flower list** with responsive design.
+- **Popup detail view** for each flower, including:
+  - Latin and common names
+  - Photo from Supabase storage
+  - Bloom time, category, deer resistance, sunlight, moisture, soil type, height, and wildlife information
+  - Gardening tips and design function text
+- **Supabase integration** for both data and image storage.
+- **Admin page** (in progress) for adding and editing flower records.
+
+## Tech Stack
+
+- **Frontend**: [Next.js](https://nextjs.org/) with TypeScript
+- **Backend & Database**: [Supabase](https://supabase.com/) (PostgreSQL + Storage)
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel (recommended) or local dev server
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+git clone https://github.com/<your-username>/<repo-name>.git
+cd <repo-name>
