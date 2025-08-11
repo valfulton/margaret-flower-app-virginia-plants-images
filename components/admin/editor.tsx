@@ -1,135 +1,172 @@
 // components/admin/editor.tsx
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { upsertFlower, deleteFlower } from '@/app/actions/flowers';
-import ImageUploader from './image-uploader';
+import type { Flower, UpsertInput } from '@/lib/types';
 
-interface Row {
-  id: number;
-  latin: string;
-  common: string | null;
-  image_name: string | null;
-}
+type Props = {
+  initial: Flower | null;
+  onSaved?: (saved: Flower) => void;
+  onDeleted?: (id: number) => void;
+};
 
-export default function AdminEditor({ flowers }: { flowers: Row[] }) {
-  const [selected, setSelected] = useState<Row | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-
+/** simple field helpers that accept string|number values */
+function Text(props: { label: string; value: string | null; onChange: (v: string) => void }) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-      <div className="md:col-span-1 rounded-xl border p-3">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold">Flowers</h2>
-          <button
-            className="rounded-md border px-2 py-1 text-sm"
-            onClick={() => setSelected({ id: 0, latin: '', common: null, image_name: null })}
-          >
-            + New
-          </button>
-        </div>
-        <ul className="divide-y max-h-[70vh] overflow-y-auto">
-          {flowers.map((f) => (
-            <li key={f.id}>
-              <button
-                className="w-full text-left px-2 py-2 hover:bg-gray-50"
-                onClick={() => setSelected(f)}
-              >
-                <div className="font-medium">{f.common ?? f.latin}</div>
-                {f.common ? <div className="text-xs italic text-gray-600">{f.latin}</div> : null}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="md:col-span-2 rounded-xl border p-4">
-        {!selected ? (
-          <p className="text-sm text-gray-500">Select a flower or click “New”.</p>
-        ) : (
-          <form
-            action={async (fd) => {
-              try {
-                setMessage(null);
-                await upsertFlower(fd);
-                setMessage('Saved.');
-              } catch (e: any) {
-                setMessage(e.message ?? 'Save failed.');
-              }
-            }}
-            className="space-y-3"
-          >
-            <input type="hidden" name="id" value={selected.id || ''} />
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <L label="Latin"><input name="latin" required defaultValue={selected.latin} className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Common"><input name="common" defaultValue={selected.common ?? ''} className="w-full rounded-md border px-3 py-2" /></L>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <L label="Height code"><input name="height_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Bloom code(s)"><input name="bloom_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Sun code(s)"><input name="sun_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Moisture code(s)"><input name="moist_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Category code(s)"><input name="cat_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Deer code(s)"><input name="deer_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Wildlife code(s)"><input name="wild_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Soil code(s)"><input name="soil_code" className="w-full rounded-md border px-3 py-2" /></L>
-            </div>
-
-            <L label="Design function"><textarea name="design_function" className="w-full rounded-md border px-3 py-2" rows={3} /></L>
-            <L label="Gardening tips"><textarea name="gardening_tips" className="w-full rounded-md border px-3 py-2" rows={3} /></L>
-            <L label="Wildlife comments"><textarea name="wildlife_comments" className="w-full rounded-md border px-3 py-2" rows={3} /></L>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <L label="Credit code"><input name="credit_code" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Region"><input name="region" className="w-full rounded-md border px-3 py-2" /></L>
-              <L label="Soil pH"><input name="ph" className="w-full rounded-md border px-3 py-2" /></L>
-            </div>
-
-            <input type="hidden" name="image_name" value={selected.image_name ?? ''} />
-
-            <ImageUploader
-              currentName={selected.image_name ?? null}
-              onUploaded={(name) => {
-                const hidden = document.querySelector<HTMLInputElement>('input[name="image_name"]');
-                if (hidden) hidden.value = name;
-                setMessage(`Uploaded: ${name}`);
-              }}
-            />
-
-            <div className="flex items-center gap-3">
-              <button className="rounded-md border px-3 py-2 text-sm">Save</button>
-              {selected.id ? (
-                <button
-                  type="button"
-                  className="rounded-md border px-3 py-2 text-sm text-red-600"
-                  onClick={async () => {
-                    try {
-                      await deleteFlower(selected.id);
-                      location.reload();
-                    } catch (e: any) {
-                      setMessage(e.message ?? 'Delete failed.');
-                    }
-                  }}
-                >
-                  Delete
-                </button>
-              ) : null}
-              {message && <span className="text-sm text-gray-600">{message}</span>}
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+    <label className="block text-sm">
+      {props.label}
+      <input
+        className="mt-1 w-full rounded border px-3 py-2"
+        value={props.value ?? ''}
+        onChange={(e) => props.onChange(e.target.value)}
+      />
+    </label>
+  );
+}
+function Num(props: { label: string; value: number | null; onChange: (v: number | null) => void }) {
+  return (
+    <label className="block text-sm">
+      {props.label}
+      <input
+        type="number"
+        className="mt-1 w-full rounded border px-3 py-2"
+        value={props.value ?? ''}
+        onChange={(e) => {
+          const v = e.target.value.trim();
+          props.onChange(v === '' ? null : Number(v));
+        }}
+      />
+    </label>
+  );
+}
+function TextArea(props: { label: string; value: string | null; onChange: (v: string) => void }) {
+  return (
+    <label className="block text-sm">
+      {props.label}
+      <textarea
+        className="mt-1 w-full rounded border px-3 py-2"
+        rows={3}
+        value={props.value ?? ''}
+        onChange={(e) => props.onChange(e.target.value)}
+      />
+    </label>
   );
 }
 
-function L({ label, children }: { label: string; children: React.ReactNode }) {
+export default function Editor({ initial, onSaved, onDeleted }: Props) {
+  const blank: UpsertInput = useMemo(
+    () => ({
+      id: undefined,
+      common: '',
+      latin: '',
+      image_name: null,
+      height_code: null,
+      bloom_code: null,
+      sun_code: null,
+      moist_code: null,
+      cat_code: null,
+      deer_code: null,
+      wild_code: null,
+      soil_code: null,
+      region: '',
+      design_function: '',
+      gardening_tips: '',
+      wildlife_comments: '',
+      credit_code: null,
+      ph: '',
+    }),
+    [],
+  );
+
+  const [form, setForm] = useState<UpsertInput>(initial ?? blank);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  function set<K extends keyof UpsertInput>(key: K, val: UpsertInput[K]) {
+    setForm((f) => ({ ...f, [key]: val }));
+  }
+
+  async function onSave() {
+    if (busy) return;
+    setBusy(true);
+    setMsg(null);
+
+    const input: UpsertInput = { ...form, id: form.id ?? initial?.id ?? undefined };
+
+    const { data, error } = await upsertFlower(input);
+    setBusy(false);
+
+    if (error || !data) {
+      setMsg(error ?? 'Save failed');
+      return;
+    }
+    setMsg('Saved ✓');
+    onSaved?.(data);
+  }
+
+  async function onDelete() {
+    if (!initial?.id || busy) return;
+    if (!confirm('Delete this flower?')) return;
+    setBusy(true);
+    const { error } = await deleteFlower(initial.id);
+    setBusy(false);
+    if (error) {
+      setMsg(error);
+      return;
+    }
+    onDeleted?.(initial.id);
+  }
+
   return (
-    <label className="block">
-      <span className="text-sm font-medium">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
+    <div className="w-[min(92vw,900px)]">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <Text label="Common name" value={form.common} onChange={(v) => set('common', v)} />
+        <Text label="Latin name" value={form.latin} onChange={(v) => set('latin', v)} />
+        <Text label="Image filename (in flowers bucket)" value={form.image_name ?? ''} onChange={(v) => set('image_name', v)} />
+
+        <Num label="Height code" value={form.height_code} onChange={(v) => set('height_code', v)} />
+        <Num label="Bloom code" value={form.bloom_code} onChange={(v) => set('bloom_code', v)} />
+        <Num label="Sun code" value={form.sun_code} onChange={(v) => set('sun_code', v)} />
+        <Num label="Moisture code" value={form.moist_code} onChange={(v) => set('moist_code', v)} />
+
+        <Num label="Category code" value={form.cat_code} onChange={(v) => set('cat_code', v)} />
+        <Num label="Deer code" value={form.deer_code} onChange={(v) => set('deer_code', v)} />
+        <Num label="Wildlife code" value={form.wild_code} onChange={(v) => set('wild_code', v)} />
+        <Num label="Soil code" value={form.soil_code} onChange={(v) => set('soil_code', v)} />
+
+        <Text label="Region" value={form.region ?? ''} onChange={(v) => set('region', v)} />
+        <Text label="pH" value={form.ph ?? ''} onChange={(v) => set('ph', v)} />
+
+        <TextArea label="Design function" value={form.design_function ?? ''} onChange={(v) => set('design_function', v)} />
+        <TextArea label="Gardening tips" value={form.gardening_tips ?? ''} onChange={(v) => set('gardening_tips', v)} />
+        <TextArea label="Wildlife comments" value={form.wildlife_comments ?? ''} onChange={(v) => set('wildlife_comments', v)} />
+        <Num label="Credit code" value={form.credit_code} onChange={(v) => set('credit_code', v)} />
+      </div>
+
+      <div className="mt-4 flex items-center gap-2">
+        <button
+          type="button"
+          className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+          onClick={onSave}
+          disabled={busy}
+        >
+          {busy ? 'Saving…' : 'Save'}
+        </button>
+
+        {initial?.id ? (
+          <button
+            type="button"
+            className="rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+            onClick={onDelete}
+            disabled={busy}
+          >
+            Delete
+          </button>
+        ) : null}
+
+        {msg && <span className="text-sm text-gray-700">{msg}</span>}
+      </div>
+    </div>
   );
 }

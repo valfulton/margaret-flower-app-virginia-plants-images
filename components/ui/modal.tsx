@@ -1,16 +1,25 @@
+// components/ui/modal.tsx
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
 
-interface ModalProps {
+export type ModalProps = {
   open: boolean;
-  title?: string;
   onClose: () => void;
-  children: ReactNode;
-}
+  title?: string;
+  /** Tailwind max-width utility, e.g. "max-w-xl" | "max-w-2xl" | "max-w-3xl" */
+  maxWidth?: string;
+  children: React.ReactNode;
+};
 
-export function Modal({ open, title, onClose, children }: ModalProps) {
-  // Close on Escape
+export function Modal({
+  open,
+  onClose,
+  title,
+  maxWidth = 'max-w-2xl', // smaller default so it fits most screens
+  children,
+}: ModalProps) {
+  // Close on ESC
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -18,33 +27,53 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  // Prevent background scroll while open
+  useEffect(() => {
+    if (!open) return;
+    const { body } = document;
+    const prev = body.style.overflow;
+    body.style.overflow = 'hidden';
+    return () => {
+      body.style.overflow = prev;
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
     >
+      {/* Backdrop */}
+      <button
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-black/40"
+      />
+
+      {/* Panel */}
       <div
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-xl dark:bg-zinc-900"
-        onClick={(e) => e.stopPropagation()}
+        className={`relative z-[1001] w-full ${maxWidth} rounded-2xl bg-white shadow-2xl`}
+        style={{ maxHeight: '92vh' }} // hard cap so it always fits
       >
-        {/* Sticky header with Close */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b bg-white/90 p-3 backdrop-blur dark:bg-zinc-900/90">
-          <h2 className="text-base font-semibold">{title}</h2>
+        {/* Sticky header with close */}
+        <div className="sticky top-0 z-[1] flex items-center justify-between border-b bg-white/95 px-4 py-3 backdrop-blur">
+          <h2 className="text-lg font-semibold truncate">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-md border px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-zinc-800"
-            aria-label="Close"
+            className="rounded p-1 text-gray-600 hover:bg-gray-100"
+            aria-label="Close modal"
           >
-            Close
+            ✕
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-4">{children}</div>
+        {/* Scrollable content */}
+        <div className="px-4 py-4 overflow-auto" style={{ maxHeight: 'calc(92vh - 56px)' }}>
+          {children}
+        </div>
       </div>
     </div>
   );
