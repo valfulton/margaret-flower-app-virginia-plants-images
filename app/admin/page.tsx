@@ -2,6 +2,7 @@
 import { supabaseServer } from '@/lib/supabaseServer';
 import type { Flower } from '@/lib/types';
 import AdminDashboard from '@/components/admin/admin-dashboard';
+import Link from 'next/link';
 
 type SP = { id?: string; q?: string };
 
@@ -54,12 +55,25 @@ export default async function AdminPage({
 
       {/* Search box routes via ?q= */}
       <form className="mb-3">
-        <input
-          name="q"
-          defaultValue={sp?.q ?? ''}
-          placeholder="Search by name, region, function, tips, wildlife, pH…"
-          className="w-full rounded border px-3 py-2"
-        />
+        <div className="relative">
+          <input
+            name="q"
+            defaultValue={sp?.q ?? ''}
+            placeholder="Search by name, region, function, tips, wildlife, pH…"
+            className="w-full rounded border px-3 py-2 pr-10"
+          />
+          {sp?.q && (
+            <Link
+              href="/admin"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label="Clear search"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </Link>
+          )}
+        </div>
       </form>
 
       <AdminDashboard flowers={filtered} selected={selected} />
