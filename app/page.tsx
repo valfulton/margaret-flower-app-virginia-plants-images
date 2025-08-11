@@ -1,14 +1,15 @@
-import { supabaseServer } from '@/lib/supabase/server';
+import { supabaseServer } from '@/lib/supabaseServer';
 import type { FlowerRow } from '@/lib/types';
 import { FlowerCard } from '@/components/flowers/flower-card';
 
 interface PageProps {
-  searchParams?: { q?: string };
+  searchParams?: Promise<{ q?: string }>;
 }
 
 export default async function Page({ searchParams }: PageProps) {
-  const q = (searchParams?.q ?? '').trim();
-  const supabase = supabaseServer();
+  const resolvedSearchParams = await searchParams;
+  const q = (resolvedSearchParams?.q ?? '').trim();
+  const supabase = await supabaseServer();
 
   let query = supabase
     .from('flowers')

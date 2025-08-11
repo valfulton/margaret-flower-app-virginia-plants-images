@@ -48,8 +48,8 @@ export default function ImageUploader({ bucket, currentName, onUploaded, prefix 
       onUploaded(name);
       setMsg('Uploaded ✓');
       if (fileRef.current) fileRef.current.value = '';
-    } catch (err: any) {
-      setMsg(err?.message ?? 'Upload failed');
+    } catch (err: unknown) {
+      setMsg(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setBusy(false);
     }

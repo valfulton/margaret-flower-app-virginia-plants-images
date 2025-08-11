@@ -86,8 +86,8 @@ export default function FileUploader({
       if (error) throw error;
       setMsg(`Uploaded: ${filename}`);
       onUploaded?.(filename);
-    } catch (e: any) {
-      setMsg(e.message ?? 'Upload failed.');
+    } catch (e: unknown) {
+      setMsg(e instanceof Error ? e.message : 'Upload failed.');
     } finally {
       setBusy(false);
       if (fileRef.current) fileRef.current.value = '';

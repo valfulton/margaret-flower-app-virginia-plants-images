@@ -24,12 +24,10 @@ interface LookupRow {
   credit_display?: string | null;
 }
 
-interface FlowerDetail extends FlowerRow {
+interface FlowerDetail extends Omit<FlowerRow, 'wildlife_comments' | 'design_function' | 'gardening_tips'> {
   wildlife_comments?: string | null;
   design_function?: string | null;
   gardening_tips?: string | null;
-  region?: string | null;
-  ph?: string | null;
   lookups?: {
     height?: LookupRow | null;
     bloom?: LookupRow[];
@@ -151,8 +149,8 @@ export function FlowerCard({ flower, imagesBase, iconsBase }: Props) {
               <div className="grid gap-3 sm:grid-cols-2">
                 {detail?.lookups?.height && (
                   <IconLabel
-                    icon={(detail.lookups.height as any)?.height_icon}
-                    label={(detail.lookups.height as any)?.height_display}
+                    icon={detail.lookups.height.height_icon}
+                    label={detail.lookups.height.height_display}
                   />
                 )}
                 {detail?.lookups?.bloom?.map((x, i) => (
@@ -217,7 +215,7 @@ export function FlowerCard({ flower, imagesBase, iconsBase }: Props) {
             {/* Photo credit */}
             {detail?.lookups?.credit && (
               <p className="text-xs text-gray-500">
-                Photo credit: {(detail.lookups.credit as any)?.credit_display ?? ''}
+                Photo credit: {detail.lookups.credit?.credit_display ?? ''}
               </p>
             )}
           </div>

@@ -13,7 +13,7 @@ interface SearchParams {
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams?: SearchParams;
+  searchParams?: Promise<SearchParams>;
 }) {
   const sb = await supabaseServer();
   const {
@@ -22,9 +22,11 @@ export default async function AdminPage({
 
   const email = (session?.user?.email ?? '').toLowerCase();
   const isAllowed = !!session && ALLOWED.includes(email);
+  
+  const resolvedSearchParams = await searchParams;
 
   // Debug view: don't redirect; show what we see
-  if (searchParams?.debug === '1') {
+  if (resolvedSearchParams?.debug === '1') {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-2xl font-semibold mb-4">Admin (Debug)</h1>

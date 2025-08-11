@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const sp = useSearchParams();
   const [debug, setDebug] = useState<{ url?: string; search?: string; hash?: string; status: string }>({
@@ -52,8 +52,8 @@ export default function AuthCallbackPage() {
         }
 
         setDebug((d) => ({ ...d, status: 'No auth code or tokens found in URL.' }));
-      } catch (e: any) {
-        setDebug((d) => ({ ...d, status: `Unhandled error: ${e?.message ?? 'unknown'}` }));
+      } catch (e: unknown) {
+        setDebug((d) => ({ ...d, status: `Unhandled error: ${e instanceof Error ? e.message : 'unknown'}` }));
       }
     })();
   }, [router, sp]);
@@ -67,5 +67,13 @@ export default function AuthCallbackPage() {
         <pre className="mt-2 whitespace-pre-wrap text-xs">{JSON.stringify(debug, null, 2)}</pre>
       </details>
     </main>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-xl p-6">Loading...</div>}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }

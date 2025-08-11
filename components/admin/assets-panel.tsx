@@ -20,6 +20,7 @@ export default function AssetsPanel() {
 
         {/* Flower photos uploader (standalone, does not set a DB row) */}
         <ImageUploader
+          bucket="flowers"
           currentName={lastPhoto}
           onUploaded={(name) => setLastPhoto(name)}
         />

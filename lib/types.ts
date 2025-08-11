@@ -27,4 +27,5 @@ export type Flower = {
   ph: string | null;
 };
 
+export type FlowerRow = Flower;
 export type UpsertInput = Omit<Flower, 'id'> & { id?: number };

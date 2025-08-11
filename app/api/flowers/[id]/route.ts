@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server';
+import { supabaseServer } from '@/lib/supabaseServer';
 
 /** split "1;2, 3  4" -> ["1","2","3","4"] */
 function splitCodes(raw?: string | null): string[] {
@@ -12,14 +12,15 @@ function splitCodes(raw?: string | null): string[] {
 
 export async function GET(
   _req: Request,
-  ctx: { params: { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const idNum = Number(ctx.params.id);
+  const params = await ctx.params;
+  const idNum = Number(params.id);
   if (!Number.isFinite(idNum)) {
     return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   }
 
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
 
   // 1) Base flower row (pull everything so we don’t miss fields)
   const { data: flower, error: flowerErr } = await supabase
