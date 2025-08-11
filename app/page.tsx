@@ -13,11 +13,12 @@ export default async function Page({ searchParams }: PageProps) {
 
   let query = supabase
     .from('flowers')
-    .select('id, latin, common, image_name, height_code')
+    .select('id, latin, common, image_name, height_code, region, design_function, gardening_tips, wildlife_comments, ph')
     .order('latin', { ascending: true });
 
   if (q) {
-    query = query.or(`latin.ilike.%${q}%,common.ilike.%${q}%`);
+    // Enhanced search across all text fields
+    query = query.or(`latin.ilike.%${q}%,common.ilike.%${q}%,region.ilike.%${q}%,design_function.ilike.%${q}%,gardening_tips.ilike.%${q}%,wildlife_comments.ilike.%${q}%,ph.ilike.%${q}%`);
   }
 
   const { data, error } = await query;
@@ -67,7 +68,7 @@ function SearchBar({ defaultValue = '' }: { defaultValue?: string }) {
       <input
         name="q"
         defaultValue={defaultValue}
-        placeholder="Search flowers…"
+        placeholder="Search plants by name, region, function, growing tips, wildlife info, pH…"
         aria-label="Search flowers"
         className="w-full max-w-xl rounded-xl border px-4 py-2 outline-none focus:ring"
       />

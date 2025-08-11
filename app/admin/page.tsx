@@ -17,10 +17,10 @@ export default async function AdminPage({
 
   const supabase = await supabaseServer();
 
-  // lightweight list for the grid
+  // Enhanced list for the grid with more searchable fields
   const { data: list = [] } = await supabase
     .from('flowers')
-    .select('id, latin, common, image_name, height_code')
+    .select('id, latin, common, image_name, height_code, region, design_function, gardening_tips, wildlife_comments, ph')
     .order('id', { ascending: true });
 
   // optional detail if id is present
@@ -34,12 +34,17 @@ export default async function AdminPage({
     selected = (data as Flower) ?? null;
   }
 
-  // simple contains filter (server side)
+  // Enhanced search across all text fields (server side)
   const filtered: Flower[] = q
     ? ((list as Flower[]).filter(
         (f) =>
           (f.common ?? '').toLowerCase().includes(q) ||
-          (f.latin ?? '').toLowerCase().includes(q),
+          (f.latin ?? '').toLowerCase().includes(q) ||
+          (f.region ?? '').toLowerCase().includes(q) ||
+          (f.design_function ?? '').toLowerCase().includes(q) ||
+          (f.gardening_tips ?? '').toLowerCase().includes(q) ||
+          (f.wildlife_comments ?? '').toLowerCase().includes(q) ||
+          (f.ph ?? '').toLowerCase().includes(q),
       ) as Flower[])
     : ((list as Flower[]) ?? []);
 
@@ -52,7 +57,7 @@ export default async function AdminPage({
         <input
           name="q"
           defaultValue={sp?.q ?? ''}
-          placeholder="Search common/latin…"
+          placeholder="Search by name, region, function, tips, wildlife, pH…"
           className="w-full rounded border px-3 py-2"
         />
       </form>
