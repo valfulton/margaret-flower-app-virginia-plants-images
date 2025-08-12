@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Flower } from '@/lib/types';
 import { Modal } from '@/components/ui/modal';
-import Editor from './editor';
+import EnhancedEditor from './enhanced-editor';
 
 type Props = {
   flowers: Flower[];
@@ -31,9 +31,12 @@ export default function AdminDashboard({ flowers, selected }: Props) {
       <Link
         href={{ pathname: '/admin', query: { id: 0, ...(q ? { q } : {}) } }}
         scroll={false}
-        className="mb-3 inline-block rounded border px-2 py-1 hover:bg-gray-50"
+        className="mb-6 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white font-semibold hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
       >
-        + New Flower
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        Add New Flower
       </Link>
 
       {/* grid: whole card is a link so clicking name opens modal */}
@@ -57,10 +60,10 @@ export default function AdminDashboard({ flowers, selected }: Props) {
         open={Boolean(selected)}
         onClose={closeModal}
         title={selected?.id ? `Edit: ${selected.common}` : 'New Flower'}
-        maxWidth="max-w-2xl"
+        maxWidth="max-w-6xl"
       >
         {selected && (
-          <Editor
+          <EnhancedEditor
             initial={selected}
             onSaved={closeModal}
             onDeleted={closeModal}
