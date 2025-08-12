@@ -179,7 +179,10 @@ export default function EnhancedEditor({ initial, onSaved, onDeleted }: Props) {
     setBusy(true);
     setMsg(null);
 
-    const input: UpsertInput = { ...form, id: form.id ?? initial?.id ?? undefined };
+    const input: UpsertInput = { 
+      ...form, 
+      id: form.id && form.id !== 0 ? form.id : initial?.id && initial.id !== 0 ? initial.id : undefined 
+    };
 
     const { data, error } = await upsertFlower(input);
     setBusy(false);
@@ -195,7 +198,7 @@ export default function EnhancedEditor({ initial, onSaved, onDeleted }: Props) {
   }
 
   async function onDelete() {
-    if (!initial?.id || busy) return;
+    if (!initial?.id || initial.id === 0 || busy) return;
     if (!confirm('Are you sure you want to delete this flower? This action cannot be undone.')) return;
     setBusy(true);
     setMsg(null);
@@ -387,7 +390,7 @@ export default function EnhancedEditor({ initial, onSaved, onDeleted }: Props) {
           {busy ? '⏳ Saving...' : '💾 Save Flower'}
         </button>
 
-        {initial?.id && (
+        {initial?.id && initial.id !== 0 && (
           <button
             type="button"
             className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

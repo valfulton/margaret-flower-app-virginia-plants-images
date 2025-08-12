@@ -27,12 +27,37 @@ export default async function AdminPage({
   // optional detail if id is present
   let selected: Flower | null = null;
   if (Number.isFinite(id)) {
-    const { data } = await supabase
-      .from('flowers')
-      .select('*')
-      .eq('id', id as number)
-      .maybeSingle();
-    selected = (data as Flower) ?? null;
+    if (id === 0) {
+      // Special case: id=0 means "new flower" - create a blank object
+      selected = {
+        id: 0,
+        common: '',
+        latin: '',
+        image_name: null,
+        height_code: null,
+        bloom_code: null,
+        sun_code: null,
+        moist_code: null,
+        cat_code: null,
+        deer_code: null,
+        wild_code: null,
+        soil_code: null,
+        region: '',
+        design_function: '',
+        gardening_tips: '',
+        wildlife_comments: '',
+        credit_code: null,
+        ph: '',
+      } as Flower;
+    } else {
+      // Regular case: fetch existing flower
+      const { data } = await supabase
+        .from('flowers')
+        .select('*')
+        .eq('id', id as number)
+        .maybeSingle();
+      selected = (data as Flower) ?? null;
+    }
   }
 
   // Enhanced search across all text fields (server side)
