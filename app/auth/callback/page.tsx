@@ -18,11 +18,20 @@ function AuthCallbackContent() {
         const search = window.location.search;
         const hash = window.location.hash;
 
-        const searchCode = sp.get('code');
-        const hp = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
-        const hashCode = hp.get('code');
-        const access_token = hp.get('access_token');
-        const refresh_token = hp.get('refresh_token');
+                       const searchCode = sp.get('code');
+               const hp = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
+               const hashCode = hp.get('code');
+               const access_token = hp.get('access_token');
+               const refresh_token = hp.get('refresh_token');
+               
+               // Check for errors in URL (expired links, etc.)
+               const error = sp.get('error') || hp.get('error');
+               const errorDescription = sp.get('error_description') || hp.get('error_description');
+               
+               if (error) {
+                 setDebug((d) => ({ ...d, status: `Auth error: ${error}. ${errorDescription || ''}. Click to go back to login.` }));
+                 return; // Don't auto-redirect, let user read the error
+               }
 
         setDebug({
           url,
@@ -37,8 +46,22 @@ function AuthCallbackContent() {
         if (searchCode || hashCode) {
           const { error } = await supabase.auth.exchangeCodeForSession(url);
           if (error) return setDebug((d) => ({ ...d, status: `exchangeCodeForSession error: ${error.message}` }));
-          setDebug((d) => ({ ...d, status: 'Signed in via code. Redirecting…' }));
-          router.replace('/admin');
+          
+          // Wait a moment for session to be established
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Check if we have a session now
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          const userEmail = session?.user?.email || 'none';
+          const allowedEmails = ['1margaret.e.fisher@gmail.com', 'georgerfisher@gmail.com'];
+          const isAllowed = allowedEmails.includes(userEmail.toLowerCase());
+          
+          setDebug((d) => ({ ...d, status: `Signed in: ${userEmail}. Email verified: ${session?.user?.email_confirmed_at || 'no'}. Allowed: ${isAllowed}. Redirecting in 15 seconds…` }));
+          // Wait much longer to let user read the debug info
+          await new Promise(resolve => setTimeout(resolve, 15000));
+          // Force a hard redirect to ensure server-side sees the session
+          window.location.href = '/admin';
           return;
         }
 
@@ -46,8 +69,13 @@ function AuthCallbackContent() {
         if (access_token && refresh_token) {
           const { error } = await supabase.auth.setSession({ access_token, refresh_token });
           if (error) return setDebug((d) => ({ ...d, status: `setSession error: ${error.message}` }));
+          
+          // Wait a moment for session to be established
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           setDebug((d) => ({ ...d, status: 'Signed in via tokens. Redirecting…' }));
-          router.replace('/admin');
+          // Force a hard redirect to ensure server-side sees the session
+          window.location.href = '/admin';
           return;
         }
 
@@ -58,16 +86,33 @@ function AuthCallbackContent() {
     })();
   }, [router, sp]);
 
-  return (
-    <main className="mx-auto max-w-xl p-6">
-      <h1 className="text-2xl font-semibold mb-2">Authenticating…</h1>
-      <p className="text-sm text-gray-600 mb-4">{debug.status}</p>
-      <details className="rounded border p-3 bg-gray-50">
-        <summary className="cursor-pointer">Debug details</summary>
-        <pre className="mt-2 whitespace-pre-wrap text-xs">{JSON.stringify(debug, null, 2)}</pre>
-      </details>
-    </main>
-  );
+           return (
+           <main className="mx-auto max-w-xl p-6">
+             <h1 className="text-2xl font-semibold mb-2">Authenticating…</h1>
+             <p className="text-sm text-gray-600 mb-4">{debug.status}</p>
+             
+             {/* Manual navigation buttons */}
+             <div className="mb-4 space-x-3">
+               <button
+                 onClick={() => window.location.href = '/login'}
+                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+               >
+                 Go to Login
+               </button>
+               <button
+                 onClick={() => window.location.href = '/admin?debug=bypass'}
+                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+               >
+                 Admin (Bypass)
+               </button>
+             </div>
+             
+             <details className="rounded border p-3 bg-gray-50">
+               <summary className="cursor-pointer">Debug details</summary>
+               <pre className="mt-2 whitespace-pre-wrap text-xs">{JSON.stringify(debug, null, 2)}</pre>
+             </details>
+           </main>
+         );
 }
 
 export default function AuthCallbackPage() {

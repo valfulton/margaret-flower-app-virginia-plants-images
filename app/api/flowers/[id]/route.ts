@@ -20,7 +20,12 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   }
 
-  const supabase = await supabaseServer();
+  // Use a basic supabase client for public data access (no auth required)
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // 1) Base flower row (pull everything so we don’t miss fields)
   const { data: flower, error: flowerErr } = await supabase
