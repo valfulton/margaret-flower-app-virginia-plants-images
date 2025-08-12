@@ -216,7 +216,7 @@ export default function SignIn({ initialEmail = '', initialTab = 'password' }: {
       {mode === 'reset' && (
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
           <p><strong>Password Reset:</strong> Enter your admin email address to receive a secure link.</p>
-          <p>You'll be able to set a new password that you can use for future logins.</p>
+          <p>You&apos;ll be able to set a new password that you can use for future logins.</p>
           <p><strong>Note:</strong> Only authorized admin emails will receive reset links.</p>
         </div>
       )}

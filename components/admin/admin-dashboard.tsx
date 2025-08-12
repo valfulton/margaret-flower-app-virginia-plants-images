@@ -13,7 +13,7 @@ import { useState, Suspense } from 'react';
 type Props = {
   flowers: Flower[];
   selected: Flower | null;
-  searchParams?: any;
+  searchParams?: { [key: string]: string | string[] | undefined };
   currentUserEmail?: string;
 };
 

@@ -179,7 +179,7 @@ export default function UserManagement({ isOpen, onClose, currentUserEmail }: Pr
             </div>
             <div className="text-xs text-blue-600 mt-2 space-y-1">
               <p>💡 The user will receive an email invitation to set up their account and password.</p>
-              <p>⚠️ If the invitation link doesn't work, tell them to use "Set Password" on the login page instead.</p>
+              <p>⚠️ If the invitation link doesn&apos;t work, tell them to use &quot;Set Password&quot; on the login page instead.</p>
             </div>
           </div>
 

@@ -108,7 +108,7 @@ export default function UploadsPanel({ isOpen, onClose }: Props) {
               <p>• Photos are stored in the <code className="bg-gray-200 px-1 rounded">flowers</code> bucket</p>
               <p>• Icons are stored in the <code className="bg-gray-200 px-1 rounded">icons</code> bucket</p>
               <p>• Files can be overwritten by uploading with the same name</p>
-              <p>• Use the filename in the flower editor's "Image filename" field</p>
+              <p>• Use the filename in the flower editor&apos;s &quot;Image filename&quot; field</p>
             </div>
           </div>
 
