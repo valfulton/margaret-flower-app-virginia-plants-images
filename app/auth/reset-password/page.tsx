@@ -159,7 +159,7 @@ function ResetPasswordContent() {
             <ul className="list-disc list-inside mt-1 space-y-1">
               <li>At least 6 characters long</li>
               <li>Use a mix of letters, numbers, and symbols for security</li>
-              <li>Don't use easily guessable information</li>
+              <li>Don&apos;t use easily guessable information</li>
             </ul>
           </div>
 

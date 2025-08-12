@@ -60,7 +60,7 @@ function Select(props: {
           props.onChange(v === '' ? null : Number(v));
         }}
       >
-        <option value="">{props.placeholder || &apos;Select...&apos;}</option>
+        <option value="">{props.placeholder || 'Select...'}</option>
         {props.options.map((opt) => (
           <option key={opt.code} value={opt.code}>
             {opt.display}

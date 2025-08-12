@@ -1,7 +1,7 @@
 // components/admin/user-management.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { inviteUser, listUsers, removeUser } from '@/app/actions/user-management';
 
 interface User {
@@ -66,7 +66,7 @@ export default function UserManagement({ isOpen, onClose, currentUserEmail }: Pr
         // Reload users list
         await loadUsers();
       }
-    } catch (error: unknown) {
+    } catch {
       setMessage({ 
         type: 'error', 
         text: 'Failed to send invitation. Please try again.' 
@@ -93,7 +93,7 @@ export default function UserManagement({ isOpen, onClose, currentUserEmail }: Pr
         setMessage({ type: 'success', text: result.message || 'User removed successfully' });
         await loadUsers();
       }
-    } catch (error: unknown) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to remove user. Please try again.' });
     } finally {
       setLoading(false);

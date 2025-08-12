@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 export default function SignIn({ initialEmail = '', initialTab = 'password' }: { initialEmail?: string; initialTab?: string }) {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'password' | 'magic' | 'reset'>(initialTab as any || 'password');
+  const [mode, setMode] = useState<'password' | 'magic' | 'reset'>((initialTab as 'password' | 'magic' | 'reset') || 'password');
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -208,7 +208,7 @@ export default function SignIn({ initialEmail = '', initialTab = 'password' }: {
       
       {mode === 'password' && (
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
-          <p><strong>First time?</strong> Click "Set Password" to create your password.</p>
+          <p><strong>First time?</strong> Click &quot;Set Password&quot; to create your password.</p>
           <p>Your admin account already exists - you just need to set a password.</p>
         </div>
       )}
@@ -225,7 +225,7 @@ export default function SignIn({ initialEmail = '', initialTab = 'password' }: {
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
           <p><strong>Magic Link:</strong> Get a one-time login link sent to your email.</p>
           <p><strong>⚠️ Warning:</strong> Magic links expire very quickly (within seconds).</p>
-          <p><strong>Tip:</strong> Use "Set Password" for a more reliable login method.</p>
+          <p><strong>Tip:</strong> Use &quot;Set Password&quot; for a more reliable login method.</p>
         </div>
       )}
     </div>

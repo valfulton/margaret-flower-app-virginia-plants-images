@@ -125,7 +125,7 @@ export function FlowerCard({ flower, imagesBase, iconsBase }: Props) {
 
       {/* Modal (scroll-safe) */}
       <Modal open={open} onClose={() => setOpen(false)} title={flower.common || flower.latin}>
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
+        {loading && <p className="text-sm text-gray-500">Loading...</p>}
         {loadErr && <p className="text-sm text-red-600">{loadErr}</p>}
 
         {!loading && !loadErr && (

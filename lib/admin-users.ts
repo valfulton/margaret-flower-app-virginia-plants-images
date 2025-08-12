@@ -133,7 +133,7 @@ export async function addAdminUser(
 // Remove admin user from database (server-side only)
 export async function removeAdminUser(
   email: string, 
-  removedBy: string
+  _removedBy: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Don't allow removing super users
