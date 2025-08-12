@@ -125,8 +125,8 @@ export async function addAdminUser(
     }
 
     return { success: true, user: data };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to add admin user' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to add admin user' };
   }
 }
 
@@ -157,7 +157,7 @@ export async function removeAdminUser(
     }
 
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to remove admin user' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to remove admin user' };
   }
 }

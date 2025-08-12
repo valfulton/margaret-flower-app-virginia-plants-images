@@ -2,7 +2,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
-import { isSuperUser, addAdminUser, removeAdminUser as removeAdminUserFromDB } from '@/lib/admin-users';
+import { isSuperUser, addAdminUser } from '@/lib/admin-users';
 
 // Use service role key for admin operations
 const supabaseAdmin = createClient(
@@ -51,7 +51,7 @@ export async function inviteUser(email: string, currentUserEmail: string) {
       message: `Invitation sent to ${email}. They will receive an email to set up their account.`,
       user: data.user 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Server error inviting user:', error);
     return { error: 'Failed to send invitation. Please try again.' };
   }
@@ -82,7 +82,7 @@ export async function listUsers(currentUserEmail: string) {
     );
 
     return { success: true, users: filteredUsers };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Server error listing users:', error);
     return { error: 'Failed to load users. Please try again.' };
   }
@@ -112,7 +112,7 @@ export async function removeUser(userId: string, userEmail: string, currentUserE
       success: true, 
       message: `Removed access for ${userEmail}` 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Server error removing user:', error);
     return { error: 'Failed to remove user. Please try again.' };
   }

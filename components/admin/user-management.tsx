@@ -66,7 +66,7 @@ export default function UserManagement({ isOpen, onClose, currentUserEmail }: Pr
         // Reload users list
         await loadUsers();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setMessage({ 
         type: 'error', 
         text: 'Failed to send invitation. Please try again.' 
@@ -93,7 +93,7 @@ export default function UserManagement({ isOpen, onClose, currentUserEmail }: Pr
         setMessage({ type: 'success', text: result.message || 'User removed successfully' });
         await loadUsers();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setMessage({ type: 'error', text: 'Failed to remove user. Please try again.' });
     } finally {
       setLoading(false);
