@@ -27,5 +27,9 @@ export type Flower = {
   ph: string | null;
 };
 
-export type FlowerRow = Flower;
+export type FlowerRow = Flower & {
+  // Joined lookup data for display (Supabase returns arrays even for single joins)
+  height?: { height_display: string }[] | null;
+  categories?: { cat_display: string }[] | null;
+};
 export type UpsertInput = Omit<Flower, 'id'> & { id?: number };
