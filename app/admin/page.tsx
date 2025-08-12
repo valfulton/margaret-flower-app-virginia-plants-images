@@ -4,6 +4,7 @@ import type { Flower } from '@/lib/types';
 import AdminDashboard from '@/components/admin/admin-dashboard';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { isAllowedAdmin, isSuperUser } from '@/lib/admin-users';
 
 // Super users who can manage other users
 const SUPER_USERS = [
@@ -15,6 +16,7 @@ const SUPER_USERS = [
 const ALLOWED_USERS = [
   '1margaret.e.fisher@gmail.com',
   'georgerfisher@gmail.com',
+  'plantnovantatives@gmail.com',
   // Add your current email for testing
   // 'your.email@example.com',
 ].map(e => e.toLowerCase());
@@ -39,17 +41,18 @@ export default async function AdminPage({
   } = await supabase.auth.getSession();
 
   const email = (session?.user?.email ?? '').toLowerCase();
-  const isAllowed = !!session && ALLOWED_USERS.includes(email);
-  const isSuperUser = !!session && SUPER_USERS.includes(email);
+  
+  // Check admin status dynamically from database
+  const isAllowed = !!session && (await isAllowedAdmin(email));
+  const isUserSuperUser = !!session && (await isSuperUser(email));
 
   // Debug logging
   console.log('🔍 Admin auth check:', {
     hasSession: !!session,
     userEmail: session?.user?.email,
     normalizedEmail: email,
-    allowedUsers: ALLOWED_USERS,
     isAllowed,
-    isSuperUser
+    isSuperUser: isUserSuperUser
   });
   
   // Check if we have debug info from recent sign-in
@@ -74,7 +77,7 @@ export default async function AdminPage({
       const now = Date.now();
       
       // Allow if it's from authorized users and within 5 minutes
-      const authorizedEmails = ['georgerfisher@gmail.com', '1margaret.e.fisher@gmail.com'];
+      const authorizedEmails = ['georgerfisher@gmail.com', '1margaret.e.fisher@gmail.com', 'plantnovantatives@gmail.com'];
       hasValidAuth = authorizedEmails.includes(authEmail) && 
                     (now - authTime) < 300000; // 5 minutes
       
@@ -96,7 +99,7 @@ export default async function AdminPage({
             <li><strong>Signed in:</strong> {session ? 'yes' : 'no'}</li>
             <li><strong>Email:</strong> {email || '(none)'}</li>
             <li><strong>Allowed:</strong> {isAllowed ? 'yes' : 'no'}</li>
-            <li><strong>Super User:</strong> {isSuperUser ? 'yes' : 'no'}</li>
+            <li><strong>Super User:</strong> {isUserSuperUser ? 'yes' : 'no'}</li>
             <li><strong>Allowed users:</strong> {ALLOWED_USERS.join(', ')}</li>
           </ul>
           {!isAllowed && <p className="mt-4 text-red-700">Access would be denied. Try signing in at /login</p>}
@@ -182,7 +185,7 @@ export default async function AdminPage({
             ) : (
               <>
                 Signed in as: <strong>{session?.user?.email || (hasValidAuth ? (sp?.auth ? atob(sp.auth).split(':')[0] : 'Unknown') : 'georgerfisher@gmail.com')}</strong>
-                {(isSuperUser || hasValidAuth) && <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Super User</span>}
+                                 {(isUserSuperUser || hasValidAuth) && <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">Super User</span>}
               </>
             )}
           </p>
@@ -241,7 +244,12 @@ export default async function AdminPage({
         </div>
       </form>
 
-      <AdminDashboard flowers={filtered} selected={selected} searchParams={sp} />
+      <AdminDashboard 
+        flowers={filtered} 
+        selected={selected} 
+        searchParams={sp}
+        currentUserEmail={session?.user?.email || (hasValidAuth ? (sp?.auth ? atob(sp.auth).split(':')[0] : '') : '')}
+      />
     </main>
   );
 }

@@ -27,10 +27,25 @@ function AuthCallbackContent() {
                // Check for errors in URL (expired links, etc.)
                const error = sp.get('error') || hp.get('error');
                const errorDescription = sp.get('error_description') || hp.get('error_description');
+               const type = sp.get('type') || hp.get('type');
                
                if (error) {
-                 setDebug((d) => ({ ...d, status: `Auth error: ${error}. ${errorDescription || ''}. Click to go back to login.` }));
-                 return; // Don't auto-redirect, let user read the error
+                 let errorMessage = `Auth error: ${error}. ${errorDescription || ''}`;
+                 let redirectPath = '/login';
+                 
+                 // Special handling for invitation links
+                 if (type === 'invite' || error === 'signup_disabled') {
+                   errorMessage = 'This invitation link has expired or is invalid. Please request a new invitation from an admin.';
+                   redirectPath = '/login?tab=reset'; // Direct to password reset tab
+                 }
+                 
+                 setDebug((d) => ({ ...d, status: errorMessage }));
+                 
+                 // Auto-redirect after 5 seconds for expired invitations
+                 setTimeout(() => {
+                   window.location.href = redirectPath;
+                 }, 5000);
+                 return;
                }
 
         setDebug({
@@ -54,8 +69,8 @@ function AuthCallbackContent() {
           const { data: { session } } = await supabase.auth.getSession();
           
           const userEmail = session?.user?.email || 'none';
-          const allowedEmails = ['1margaret.e.fisher@gmail.com', 'georgerfisher@gmail.com'];
-          const isAllowed = allowedEmails.includes(userEmail.toLowerCase());
+          // Note: We'll let the admin page handle the dynamic permission check
+          const isAllowed = true; // Assume allowed for now, admin page will verify
           
           setDebug((d) => ({ ...d, status: `Signed in: ${userEmail}. Email verified: ${session?.user?.email_confirmed_at || 'no'}. Allowed: ${isAllowed}. Redirecting in 15 seconds…` }));
           // Wait much longer to let user read the debug info

@@ -2,14 +2,11 @@ import { supabaseServer } from '@/lib/supabaseServer';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import SignIn from '@/components/admin/sign-in';
-
-const ALLOWED = [
-  '1margaret.e.fisher@gmail.com',
-  'georgerfisher@gmail.com',
-].map(e => e.toLowerCase());
+import { isAllowedAdmin } from '@/lib/admin-users';
 
 interface SearchParams {
   debug?: string;
+  tab?: string;
 }
 
 export default async function LoginPage({
@@ -23,7 +20,7 @@ export default async function LoginPage({
   } = await sb.auth.getSession();
 
   const email = (session?.user?.email ?? '').toLowerCase();
-  const isAllowed = !!session && ALLOWED.includes(email);
+  const isAllowed = !!session && (await isAllowedAdmin(email));
   
   const resolvedSearchParams = await searchParams;
 
@@ -36,7 +33,7 @@ export default async function LoginPage({
           <li><strong>Signed in:</strong> {session ? 'yes' : 'no'}</li>
           <li><strong>Email:</strong> {email || '(none)'}</li>
           <li><strong>Allowed:</strong> {isAllowed ? 'yes' : 'no'}</li>
-          <li><strong>Allowed list:</strong> {ALLOWED.join(', ')}</li>
+          <li><strong>Check:</strong> Dynamic admin user lookup from database</li>
         </ul>
         {!isAllowed && <p className="mt-6 text-rose-700">If this says “no”, it would normally redirect to /login.</p>}
       </main>
@@ -62,7 +59,7 @@ export default async function LoginPage({
           This admin panel is restricted to authorized users only. Please enter your email address to receive a secure login link.
         </p>
         
-        <SignIn />
+                       <SignIn initialTab={resolvedSearchParams?.tab} />
         
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <h3 className="font-medium text-blue-900 mb-2">Need Access?</h3>

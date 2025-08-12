@@ -4,10 +4,10 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
-export default function SignIn({ initialEmail = '' }: { initialEmail?: string }) {
+export default function SignIn({ initialEmail = '', initialTab = 'password' }: { initialEmail?: string; initialTab?: string }) {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
-  const [mode, setMode] = useState<'password' | 'magic' | 'reset'>('password');
+  const [mode, setMode] = useState<'password' | 'magic' | 'reset'>(initialTab as any || 'password');
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
