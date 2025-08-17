@@ -12,11 +12,14 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
     deviceSizes: [640, 750, 828, 1080, 1200],
     
+    // Limit quality options to reduce transformations
+    qualities: [75, 90],
+    
     // Keep your existing Supabase configuration
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'rmflqfmmtobyihjyu.supabase.co',
+        hostname: 'rnlflqfmmtobyyihjiyu.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
