@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 
 // Helper function to simplify moisture options for better UX
-function getSimplifiedMoistureOptions(_moistureData: unknown[]): Array<{code: number; display: string}> {
+function getSimplifiedMoistureOptions(_moistureData: Array<Record<string, unknown>>): Array<{code: number; display: string}> {
   // Simplify from 6 options to 3 most useful ones
   const simplifiedOptions = [
     { code: 1, display: "Dry" }, // Will match dry, dry or moist, dry or moist or wet via compound search
@@ -14,7 +14,7 @@ function getSimplifiedMoistureOptions(_moistureData: unknown[]): Array<{code: nu
 }
 
 // Helper function to simplify sun options for better UX
-function getSimplifiedSunOptions(_sunData: unknown[]): Array<{code: number; display: string}> {
+function getSimplifiedSunOptions(_sunData: Array<Record<string, unknown>>): Array<{code: number; display: string}> {
   // Simplify from 6 options to 3 most useful ones
   const simplifiedOptions = [
     { code: 1, display: "Full Sun" }, // Will match full sun, full or part sun, any via compound search
@@ -26,7 +26,7 @@ function getSimplifiedSunOptions(_sunData: unknown[]): Array<{code: number; disp
 }
 
 // Helper function to simplify soil options for better UX
-function getSimplifiedSoilOptions(_soilData: unknown[]): Array<{code: number; display: string}> {
+function getSimplifiedSoilOptions(_soilData: Array<Record<string, unknown>>): Array<{code: number; display: string}> {
   // Simplify from 7 options to 3 main soil types
   const simplifiedOptions = [
     { code: 2, display: "Clay" }, // Will match clay, clay or loam, clay or loam or sandy via compound search
@@ -38,7 +38,7 @@ function getSimplifiedSoilOptions(_soilData: unknown[]): Array<{code: number; di
 }
 
 // Helper function to simplify wildlife options for better UX
-function getSimplifiedWildlifeOptions(_wildlifeData: unknown[]): Array<{code: number; display: string}> {
+function getSimplifiedWildlifeOptions(_wildlifeData: Array<Record<string, unknown>>): Array<{code: number; display: string}> {
   // Define simplified categories with the codes that should map to them
   const simplifiedOptions = [
     { code: 1, display: "Birds" }, // Maps to "Attracts birds."
